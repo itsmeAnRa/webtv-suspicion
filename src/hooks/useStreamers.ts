@@ -69,11 +69,12 @@ export function useStreamers(pollInterval = 60_000) {
       prevRef.current = newMap;
 
       setState({ streamers: newStreamers, loading: false, error: null });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: err.message,
+        error: message,
       }));
     }
   }, []);

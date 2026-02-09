@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useCallback } from "react";
+import { memo, useRef, useEffect } from "react";
 
 interface SlotContainerProps {
   index: number;
@@ -28,8 +28,8 @@ export const SlotContainer = memo(
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
     // ─── Mute/unmute via Twitch iframe postMessage ───────────────────
-    // The Twitch embedded player listens to postMessage commands.
-    // We load the iframe always muted, then send setMuted(false) to unmute.
+    // We load the iframe always muted in the URL, then use postMessage
+    // to control audio without changing the src (which would reload).
     useEffect(() => {
       const iframe = iframeRef.current;
       if (!iframe || !channel) return;
@@ -81,7 +81,7 @@ export const SlotContainer = memo(
           <div className="absolute inset-0 rounded-lg ring-2 ring-violet-500 pointer-events-none" />
         )}
 
-        {/* Mute toggle */}
+        {/* Mute toggle — only show when there's a channel to mute */}
         {!isSingleMode && channel && (
           <div className="absolute top-2 right-2 z-10">
             <button
