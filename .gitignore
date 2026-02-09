@@ -1,4 +1,5 @@
 node_modules/
 .vite
 .env
+.vs
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass

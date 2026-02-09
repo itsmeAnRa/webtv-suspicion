@@ -14,6 +14,13 @@ const initialState: SplitState = {
   unmutedSlot: 0,
 };
 
+function findFirstEmptySlot(slots: (string | null)[], count: number): number {
+  for (let i = 0; i < count; i++) {
+    if (slots[i] === null) return i;
+  }
+  return 0; // all full, default to 0
+}
+
 function splitReducer(state: SplitState, action: SplitAction): SplitState {
   switch (action.type) {
     case "assignChannel": {
@@ -24,8 +31,9 @@ function splitReducer(state: SplitState, action: SplitAction): SplitState {
       // Already in active slot? No-op
       if (newSlots[active] === channel) return state;
 
-      // Already in another slot? Swap
-      const existingIdx = newSlots.findIndex((s) => s === channel);
+      // Already in another visible slot? Swap with active
+      const count = SLOT_COUNTS[state.mode];
+      const existingIdx = newSlots.slice(0, count).findIndex((s) => s === channel);
       if (existingIdx !== -1) {
         newSlots[existingIdx] = newSlots[active];
         newSlots[active] = channel;
@@ -33,7 +41,10 @@ function splitReducer(state: SplitState, action: SplitAction): SplitState {
         newSlots[active] = channel;
       }
 
-      return { ...state, slots: newSlots };
+      // After assigning, auto-advance to next empty slot
+      const nextEmpty = findFirstEmptySlot(newSlots, count);
+
+      return { ...state, slots: newSlots, activeSlot: nextEmpty };
     }
 
     case "setMode": {
@@ -44,16 +55,20 @@ function splitReducer(state: SplitState, action: SplitAction): SplitState {
       // Clear excess slots
       for (let i = count; i < 4; i++) newSlots[i] = null;
 
+      // Auto-select first empty slot in the new mode
+      const nextActive = findFirstEmptySlot(newSlots, count);
+
       return {
         ...state,
         mode,
         slots: newSlots,
-        activeSlot: state.activeSlot >= count ? 0 : state.activeSlot,
+        activeSlot: nextActive,
         unmutedSlot: state.unmutedSlot >= count ? 0 : state.unmutedSlot,
       };
     }
 
     case "setActiveSlot":
+      // Allow selecting any slot (occupied or empty) for swapping
       return { ...state, activeSlot: action.index };
 
     case "setUnmutedSlot":

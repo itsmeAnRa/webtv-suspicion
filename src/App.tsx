@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+﻿import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { LayoutGroup } from "framer-motion";
 import { useStreamers } from "./hooks/useStreamers";
 import { useSplitView } from "./hooks/useSplitView";
@@ -104,14 +104,13 @@ export default function App() {
           onDismiss={clearDiff}
           onWatch={handleToastWatch}
         />
-
         <div className="px-4 py-6 max-w-[1400px] mx-auto">
           {/* ─── Header: brand logo + mode toggle ────────────────────── */}
           <div className="flex items-center justify-between mb-2">
             <div ref={logoTargetRef} className="flex items-center gap-3">
               <BrandLogo visible={introComplete} />
             </div>
-            {!loading && (
+                      {!loading && streamers.some((s) => s.isLive) &&(
               <ModeToggle mode={splitState.mode} onSetMode={setMode} />
             )}
           </div>

@@ -26,7 +26,7 @@ export function ModeToggle({ mode, onSetMode }: ModeToggleProps) {
               style={{
                 opacity: isActive ? 1 : 0.4,
                 filter: isActive
-                  ? "drop-shadow(0 0 6px rgba(139, 92, 246, 0.6)) drop-shadow(0 0 12px rgba(139, 92, 246, 0.3))"
+                  ? "drop-shadow(0 0 6px rgba(139, 92, 246, 0.6))"
                   : "none",
               }}
               onMouseEnter={(e) => {
