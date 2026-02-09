@@ -7,7 +7,7 @@ interface DebugPanelProps {
 
 const FAKE_STREAMER: Streamer = {
   displayName: "TestBouchon",
-  channelName: "kamet0",
+  channelName: "payo",
   avatarUrl:
     "https://static-cdn.jtvnw.net/jtv_user_pictures/kamet0-profile_image-300x300.png",
   isLive: true,
@@ -31,7 +31,7 @@ export function DebugPanel({ onInjectFake, onRemoveFake }: DebugPanelProps) {
         </button>
         <button
           className="px-4 py-2 text-sm font-medium rounded-lg bg-white/10 text-white/60 hover:bg-white/20 transition-colors cursor-pointer"
-          onClick={() => onRemoveFake("kamet0")}
+          onClick={() => onRemoveFake("payo")}
         >
           🔴 Retirer le bouchon
         </button>

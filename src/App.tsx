@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { LayoutGroup } from "framer-motion";
 import { useStreamers } from "./hooks/useStreamers";
 import { useSplitView } from "./hooks/useSplitView";
@@ -7,10 +7,20 @@ import { StreamerCard } from "./components/StreamerCard";
 import { ModeToggle } from "./components/ModeToggle";
 import { LiveToast } from "./components/LiveToast";
 import { DebugPanel } from "./components/DebugPanel";
+import { WelcomeIntro, BrandLogo } from "./components/WelcomeIntro";
 
 const PARENT_HOST = window.location.hostname;
 
 export default function App() {
+  // ─── Skip intro via ?skipIntro=1 ──────────────────────────────────────
+  const skipIntro = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("skipIntro") === "1";
+  }, []);
+
+  const [introComplete, setIntroComplete] = useState(skipIntro);
+  const logoTargetRef = useRef<HTMLDivElement>(null);
+
   const {
     streamers,
     loading,
@@ -79,6 +89,15 @@ export default function App() {
   return (
     <LayoutGroup>
       <div className="min-h-screen bg-zinc-950 text-white">
+        {/* ─── Intro overlay (non-blocking) ──────────────────────────── */}
+        {!introComplete && (
+          <WelcomeIntro
+            logoTargetRef={logoTargetRef}
+            onComplete={() => setIntroComplete(true)}
+            debug={false}
+          />
+        )}
+
         {/* Toast */}
         <LiveToast
           newlyLive={diff?.newlyLive ?? null}
@@ -87,24 +106,31 @@ export default function App() {
         />
 
         <div className="px-4 py-6 max-w-[1400px] mx-auto">
-          {/* Mode toggle + Player */}
+          {/* ─── Header: brand logo + mode toggle ────────────────────── */}
+          <div className="flex items-center justify-between mb-2">
+            <div ref={logoTargetRef} className="flex items-center gap-3">
+              <BrandLogo visible={introComplete} />
+            </div>
+            {!loading && (
+              <ModeToggle mode={splitState.mode} onSetMode={setMode} />
+            )}
+          </div>
+
+          {/* Player */}
           {loading ? (
             <div className="w-full aspect-video rounded-xl bg-white/5 animate-pulse flex items-center justify-center">
               <p className="text-white/40">Chargement...</p>
             </div>
           ) : (
-            <>
-              <ModeToggle mode={splitState.mode} onSetMode={setMode} />
-              <div className="w-full aspect-video">
-                <FeaturedPlayer
-                  splitState={splitState}
-                  hasEmptySlot={hasEmptySlot}
-                  parentHost={PARENT_HOST}
-                  onActivateSlot={setActiveSlot}
-                  onToggleMute={setUnmutedSlot}
-                />
-              </div>
-            </>
+            <div className="w-full aspect-video">
+              <FeaturedPlayer
+                splitState={splitState}
+                hasEmptySlot={hasEmptySlot}
+                parentHost={PARENT_HOST}
+                onActivateSlot={setActiveSlot}
+                onToggleMute={setUnmutedSlot}
+              />
+            </div>
           )}
 
           {/* Roster */}
